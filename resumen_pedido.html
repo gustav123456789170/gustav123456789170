@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resumen del Pedido — Pastelería Artesanal</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="estilo.css" />
+</head>
+<body>
+
+  <a href="#main-content" class="skip-link">Saltar al contenido</a>
+
+  <header class="nav-superior">
+    <div class="contenedor">
+      <a href="index.html" class="nav-logo">🍰 Pastelería Artesanal</a>
+      <nav class="nav-links">
+        <a href="index.html">Inicio</a>
+        <a href="catalogo.html">Catálogo</a>
+        <a href="contacto.html">Contacto</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="resumen-seccion seccion">
+      <div class="contenedor-angosto">
+        <span class="etiqueta-seccion">Paso 1 de 3</span>
+        <h1>Resumen de tu pedido</h1>
+        <p class="subtitulo">Revisa bien tu pedido antes de continuar.</p>
+
+        <div class="resumen-card">
+          <table class="resumen-tabla">
+            <thead>
+              <tr><th>Producto</th><th class="col-cant">Cant.</th><th class="col-precio">Precio</th><th class="col-subtotal">Subtotal</th></tr>
+            </thead>
+            <tbody id="resumen-cuerpo"></tbody>
+            <tfoot>
+              <tr class="resumen-total-fila"><td colspan="3" class="resumen-total-label">Total a pagar</td><td class="col-subtotal precio-resumen" id="resumen-total"></td></tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="fila-botones">
+          <button type="button" id="btn-cancelar" class="btn btn-peligro">✖ Cancelar</button>
+          <button type="button" id="btn-confirmar" class="btn btn-exito">✔ Confirmar pedido</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>🍰 Pastelería Artesanal · Postres frescos cada semana</p>
+  </footer>
+
+  <script src="carrito.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const carrito = getCarrito();
+      if (!carrito || carrito.length === 0) {
+        window.location.href = 'catalogo.html';
+        return;
+      }
+
+      const tbody = document.getElementById('resumen-cuerpo');
+      carrito.forEach(item => {
+        const sub = item.precio * item.cantidad;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${escHTML(item.nombre)}</strong>${item.descripcion ? `<div class="resumen-nota">📝 ${escHTML(item.descripcion)}</div>` : ''}</td>
+          <td class="col-cant">${item.cantidad}</td>
+          <td class="col-precio">$${Number(item.precio).toFixed(2)}</td>
+          <td class="col-subtotal precio-resumen">$${sub.toFixed(2)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      document.getElementById('resumen-total').textContent = `$${getTotalCarrito(carrito).toFixed(2)}`;
+
+      document.getElementById('btn-cancelar').addEventListener('click', () => history.back());
+      document.getElementById('btn-confirmar').addEventListener('click', () => {
+        sessionStorage.setItem('pedido_confirmado', JSON.stringify({ carrito, total: getTotalCarrito(carrito), timestamp: Date.now() }));
+        window.location.href = 'pago.html';
+      });
+    });
+  </script>
+</body>
+</html>

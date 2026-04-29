@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nombre del Pedido — Pastelería Artesanal</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="estilo.css" />
+</head>
+<body>
+
+  <a href="#main-content" class="skip-link">Saltar al contenido</a>
+
+  <header class="nav-superior">
+    <div class="contenedor">
+      <a href="index.html" class="nav-logo">🍰 Pastelería Artesanal</a>
+      <nav class="nav-links">
+        <a href="index.html">Inicio</a>
+        <a href="catalogo.html">Catálogo</a>
+        <a href="contacto.html">Contacto</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="nombre-seccion seccion">
+      <div class="contenedor-angosto">
+        <div class="nombre-card">
+          <span class="etiqueta-seccion">Paso 3 de 3 — Último paso</span>
+          <h1>¿A nombre de quién es el pedido? 👤</h1>
+          <p>Así te llamaremos cuando tu pedido esté listo para recoger.</p>
+
+          <div class="form-grupo">
+            <label class="form-label" for="input-nombre-pedido">Un nombre para el pedido <span class="requerido">*</span></label>
+            <input type="text" id="input-nombre-pedido" class="form-input" placeholder="Ej: María, Familia García…" maxlength="80" />
+          </div>
+
+          <div class="fila-botones">
+            <button type="button" id="btn-anterior" class="btn btn-neutro">← Anterior</button>
+            <button type="button" id="btn-siguiente" class="btn btn-primario">Siguiente →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>🍰 Pastelería Artesanal · Postres frescos cada semana</p>
+  </footer>
+
+  <div class="modal-overlay" id="modal-confirmacion" role="dialog" aria-modal="true">
+    <div class="modal-caja">
+      <div class="modal-icono">🛍️</div>
+      <h2>¿Seguro que quieres confirmar?</h2>
+      <p>Se enviará el pedido a nombre de <strong id="modal-nombre-preview">—</strong>. Esta acción no se puede deshacer.</p>
+      <div class="modal-acciones">
+        <button type="button" id="modal-btn-cancelar" class="btn btn-neutro">Cancelar</button>
+        <button type="button" id="modal-btn-siguiente" class="btn btn-exito">✔ Sí, confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="carrito.js"></script>
+  <script>
+    const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxI0i3Zbzb4CuMHF9HrxEdnJwOr4c3w2g0HdWBwH4e0XA_TnCyDh-RlrYP7YEi5sYdo/exec';
+
+    async function enviarPedidoAGoogleSheets(nombreCliente, carrito, total) {
+      const payload = {
+        nombreCliente: nombreCliente,
+        productos: carrito.map(item => ({
+          nombre: item.nombre,
+          cantidad: item.cantidad,
+          precio: item.precio,
+          descripcion: item.descripcion || '',
+          subtotal: (item.precio * item.cantidad).toFixed(2)
+        })),
+        total: total.toFixed(2),
+        fecha: new Date().toLocaleString('es-HN', { timeZone: 'America/Tegucigalpa' }),
+        metodo: sessionStorage.getItem('metodo_pago') || 'efectivo'
+      };
+
+      try {
+        await fetch(URL_APPS_SCRIPT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), mode: 'no-cors' });
+        console.log('✅ Pedido enviado a Google Sheets');
+      } catch (err) {
+        console.warn('⚠️ No se pudo enviar a Google Sheets:', err.message);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const carrito = getCarrito();
+      if (!carrito || carrito.length === 0) {
+        window.location.href = 'catalogo.html';
+        return;
+      }
+
+      const inputNombre = document.getElementById('input-nombre-pedido');
+      const modal = document.getElementById('modal-confirmacion');
+      const modalNombre = document.getElementById('modal-nombre-preview');
+      const modalCancelar = document.getElementById('modal-btn-cancelar');
+      const modalSiguiente = document.getElementById('modal-btn-siguiente');
+
+      document.getElementById('btn-anterior').addEventListener('click', () => {
+        const anterior = sessionStorage.getItem('pago_anterior') || 'pago.html';
+        window.location.href = anterior;
+      });
+
+      document.getElementById('btn-siguiente').addEventListener('click', () => {
+        const nombre = inputNombre.value.trim();
+        if (!nombre) {
+          alert('¡Ups!, aún no has añadido ningún nombre para tu pedido.');
+          inputNombre.focus();
+          return;
+        }
+        modalNombre.textContent = nombre;
+        modal.classList.add('visible');
+      });
+
+      modalCancelar.addEventListener('click', () => modal.classList.remove('visible'));
+      modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('visible'); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.classList.contains('visible')) modal.classList.remove('visible'); });
+
+      modalSiguiente.addEventListener('click', async () => {
+        const nombre = inputNombre.value.trim();
+        const total = getTotalCarrito(carrito);
+        modalSiguiente.disabled = true;
+        modalSiguiente.textContent = 'Enviando…';
+
+        await enviarPedidoAGoogleSheets(nombre, carrito, total);
+        clearCarrito();
+        sessionStorage.removeItem('pedido_confirmado');
+        sessionStorage.removeItem('metodo_pago');
+        sessionStorage.removeItem('pago_anterior');
+        modal.classList.remove('visible');
+        alert('🎉 ¡Muchas gracias por tu compra!\nYa puedes pasar por tu pedido.');
+        setTimeout(() => { window.location.href = 'index.html'; }, 4000);
+      });
+    });
+  </script>
+</body>
+</html>

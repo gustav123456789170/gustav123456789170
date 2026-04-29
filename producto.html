@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Producto — Pastelería Artesanal</title>
+  <meta name="description" content="Personaliza tu pedido y añade este postre artesanal a tu carrito." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="estilo.css" />
+</head>
+<body>
+
+  <a href="#main-content" class="skip-link">Saltar al contenido</a>
+
+  <header class="nav-superior">
+    <div class="contenedor">
+      <a href="index.html" class="nav-logo">🍰 Pastelería Artesanal</a>
+      <nav class="nav-links" aria-label="Navegación principal">
+        <a href="index.html">Inicio</a>
+        <a href="catalogo.html">Catálogo</a>
+        <a href="contacto.html">Contacto</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="producto-seccion seccion">
+      <div class="contenedor">
+
+        <div id="estado-carga" style="text-align:center; padding:40px;">Cargando producto…</div>
+
+        <div id="producto-error" style="display:none; text-align:center;">
+          <div style="font-size:3rem;">😕</div>
+          <h2>Producto no encontrado</h2>
+          <a href="catalogo.html" class="btn btn-primario">Ver catálogo</a>
+        </div>
+
+        <div id="producto-contenido" style="display:none;">
+          <div class="dos-columnas">
+            <div>
+              <img id="prod-imagen" src="" alt="" class="producto-imagen" style="width:100%; border-radius:24px;" />
+              <h1 id="prod-nombre"></h1>
+              <p id="prod-precio" class="producto-precio-grande"></p>
+              <p id="prod-descripcion" class="producto-descripcion-ficha"></p>
+            </div>
+            <div>
+              <div class="producto-form">
+                <h2>Personaliza tu pedido</h2>
+                <div class="form-grupo">
+                  <label class="form-label" for="input-descripcion">Descripción <span class="opcional">(opcional)</span></label>
+                  <textarea id="input-descripcion" class="form-textarea" rows="3" placeholder="Ej: sin azúcar, con extra relleno…"></textarea>
+                </div>
+                <div class="form-grupo">
+                  <label class="form-label" for="input-cantidad">Cantidad <span class="requerido">*</span></label>
+                  <input type="number" id="input-cantidad" class="form-numero" value="1" min="1" step="1" />
+                </div>
+                <p id="subtotal-preview" class="subtotal-preview">Subtotal estimado: —</p>
+                <button type="button" id="btn-listo" class="btn btn-primario btn-bloque btn-listo">Añadir al pedido</button>
+                <p class="producto-form-nota">Después de añadir, volverás al catálogo para seguir eligiendo.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>🍰 Pastelería Artesanal · Postres frescos cada semana</p>
+  </footer>
+
+  <script src="productosData.js"></script>
+  <script src="carrito.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
+
+      if (!id) {
+        window.location.href = 'catalogo.html';
+        return;
+      }
+
+      const producto = productosSemana.find(p => String(p.id) === String(id));
+
+      document.getElementById('estado-carga').style.display = 'none';
+
+      if (!producto || !producto.nombre) {
+        document.getElementById('producto-error').style.display = 'block';
+        return;
+      }
+
+      document.getElementById('producto-contenido').style.display = 'block';
+      document.title = `${producto.nombre} — Pastelería Artesanal`;
+
+      document.getElementById('prod-imagen').src = producto.imagen;
+      document.getElementById('prod-imagen').alt = producto.nombre;
+      document.getElementById('prod-nombre').textContent = producto.nombre;
+      document.getElementById('prod-precio').textContent = `$${Number(producto.precio).toFixed(2)}`;
+      if (producto.descripcion) {
+        document.getElementById('prod-descripcion').textContent = producto.descripcion;
+        document.getElementById('prod-descripcion').style.display = 'block';
+      }
+
+      const inputCantidad = document.getElementById('input-cantidad');
+      const subtotalPreview = document.getElementById('subtotal-preview');
+
+      function actualizarSubtotal() {
+        const qty = parseInt(inputCantidad.value, 10);
+        if (qty >= 1) {
+          const sub = qty * Number(producto.precio);
+          subtotalPreview.textContent = `Subtotal estimado: $${sub.toFixed(2)}`;
+        } else {
+          subtotalPreview.textContent = 'Subtotal estimado: —';
+        }
+      }
+
+      inputCantidad.addEventListener('input', actualizarSubtotal);
+      actualizarSubtotal();
+
+      document.getElementById('btn-listo').addEventListener('click', () => {
+        const cantidad = parseInt(inputCantidad.value, 10);
+        const descripcion = document.getElementById('input-descripcion').value.trim();
+
+        if (isNaN(cantidad) || cantidad <= 0) {
+          alert('Ingresa una cantidad válida (mínimo 1).');
+          inputCantidad.focus();
+          return;
+        }
+
+        addToCarrito({
+          id: producto.id,
+          nombre: producto.nombre,
+          precio: Number(producto.precio),
+          cantidad: cantidad,
+          descripcion: descripcion
+        });
+
+        const btn = document.getElementById('btn-listo');
+        btn.textContent = '✔ ¡Añadido! Volviendo al catálogo…';
+        btn.disabled = true;
+
+        setTimeout(() => {
+          window.location.href = 'catalogo.html';
+        }, 900);
+      });
+    });
+  </script>
+
+</body>
+</html>

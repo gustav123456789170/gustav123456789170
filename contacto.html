@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contacto — Pastelería Artesanal</title>
+  <meta name="description" content="Contáctanos por WhatsApp al +503 7724-2186. También puedes ver nuestra cuenta bancaria para pagos por transferencia." />
+  <meta property="og:type"        content="website" />
+  <meta property="og:site_name"   content="Pastelería Artesanal" />
+  <meta property="og:title"       content="Contacto — Pastelería Artesanal" />
+  <meta property="og:description" content="Escríbenos por WhatsApp al +503 7724-2186. Estamos para ayudarte con tu pedido." />
+  <meta property="og:image"       content="QR_Wa.png" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="estilo.css" />
+</head>
+<body>
+
+  <a href="#main-content" class="skip-link">Saltar al contenido</a>
+
+  <header class="nav-superior">
+    <div class="contenedor">
+      <a href="index.html" class="nav-logo">🍰 Pastelería Artesanal</a>
+      <nav class="nav-links" aria-label="Navegación principal">
+        <a href="index.html">Inicio</a>
+        <a href="catalogo.html">Catálogo</a>
+        <a href="contacto.html" class="activo" aria-current="page">Contacto</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="contacto-seccion seccion">
+      <div class="contenedor-angosto">
+
+        <span class="etiqueta-seccion">Contáctanos</span>
+        <h1>¿Tienes alguna duda?</h1>
+        <p class="subtitulo">
+          Estamos para ayudarte. Escríbenos cuando quieras.
+        </p>
+
+        <div class="contacto-telefono">
+          <div class="contacto-telefono-etiqueta">WhatsApp</div>
+          <a
+            href="https://wa.me/50377242186"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="contacto-telefono-numero"
+            aria-label="Abrir chat de WhatsApp con +503 7724-2186"
+          >
+            +503 7724-2186
+          </a>
+          <p class="contacto-telefono-ayuda">
+            Toca el número para abrir WhatsApp directo
+          </p>
+        </div>
+
+        <div class="contacto-qrs">
+
+          <div class="contacto-qr-card">
+            <div class="contacto-qr-titulo">Escanea para escribirnos</div>
+            <img src="QR_Wa.png" alt="Código QR de WhatsApp" class="contacto-qr-img" style="width:150px; height:150px; object-fit:contain; margin:0 auto; display:block;" />
+          </div>
+
+          <div class="contacto-qr-card">
+            <div class="contacto-qr-titulo">Transferencia bancaria</div>
+            <img src="QR_BA.png" alt="Código QR de cuenta bancaria" class="contacto-qr-img" style="width:150px; height:150px; object-fit:contain; margin:0 auto; display:block;" />
+            <div class="contacto-cuenta">3280645618</div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>🍰 Pastelería Artesanal &middot; Postres frescos cada semana</p>
+  </footer>
+
+  <script src="carrito.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      initPanelCarrito();
+    });
+  </script>
+
+</body>
+</html>

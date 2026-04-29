@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pago por Transferencia — Pastelería Artesanal</title>
+  <meta name="description" content="Instrucciones para pago por transferencia bancaria." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="estilo.css" />
+</head>
+<body>
+
+  <a href="#main-content" class="skip-link">Saltar al contenido</a>
+
+  <header class="nav-superior">
+    <div class="contenedor">
+      <a href="index.html" class="nav-logo">🍰 Pastelería Artesanal</a>
+      <nav class="nav-links" aria-label="Navegación principal">
+        <a href="index.html">Inicio</a>
+        <a href="catalogo.html">Catálogo</a>
+        <a href="contacto.html">Contacto</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="transferencia-seccion seccion">
+      <div class="contenedor-angosto">
+ 
+        <span class="etiqueta-seccion">Paso 2b de 3 — Transferencia</span>
+        <h1>Pago por transferencia 🏦</h1>
+        <p class="subtitulo">
+          Escanea el QR o transfiere al número de cuenta de abajo.
+        </p>
+ 
+        <!-- QR bancario -->
+        <div class="qr-contenedor">
+          <p class="qr-etiqueta">Código QR — Cuenta bancaria</p>
+          <img
+            src="QR_BA.png"
+            alt="Código QR para transferencia bancaria"
+            class="qr-imagen"
+            onerror="this.outerHTML='<div style=\'width:220px;height:220px;display:flex;align-items:center;justify-content:center;border-radius:14px;border:3px dashed #e4d9c8;color:#999;font-size:0.82rem;text-align:center;padding:20px;margin:0 auto;\'>📦 Aquí va el QR de tu cuenta bancaria</div>'"
+          />
+        </div>
+ 
+        <!-- Número de cuenta -->
+        <div class="cuenta-bancaria">
+          🏦 Cuenta: <span>3280645618</span>
+        </div>
+ 
+        <!-- Separador visual -->
+        <div class="divider"></div>
+ 
+        <!-- Instrucción clara y corta -->
+        <p class="transferencia-instruccion">
+          Después de transferir, manda tu comprobante:
+        </p>
+ 
+        <!-- Botón de WhatsApp: limpio, separado, con color correcto -->
+        <a
+          href="https://wa.me/50377242186"
+          target="_blank"
+          rel="noopener"
+          class="btn-whatsapp"
+          aria-label="Abrir WhatsApp para mandar comprobante de pago"
+        >
+          <span class="btn-whatsapp-icon">💬</span>
+          Mandar comprobante por WhatsApp
+        </a>
+ 
+        <!-- Nota secundaria debajo del botón -->
+        <div class="aviso-comprobante">
+          📍 También puedes mostrarlo en persona al recoger tu pedido.
+        </div>
+ 
+        <!-- BOTONES: Anterior | Siguiente -->
+        <div class="fila-botones" style="margin-top:32px;">
+          <button type="button" id="btn-anterior" class="btn btn-neutro">
+            ← Anterior
+          </button>
+          <button type="button" id="btn-siguiente" class="btn btn-primario">
+            Siguiente →
+          </button>
+        </div>
+ 
+      </div>
+    </section>
+  </main>
+ 
+  <!-- FOOTER -->
+  <footer class="footer">
+    <p>🍰 Pastelería Artesanal · Postres frescos cada semana</p>
+  </footer>
+ 
+  <!-- SCRIPTS -->
+  <script src="carrito.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+ 
+      // Guard: sin carrito → volver al catálogo
+      const carrito = getCarrito();
+      if (!carrito || carrito.length === 0) {
+        window.location.href = 'catalogo.html';
+        return;
+      }
+ 
+      // Guardar origen para el botón Anterior de nombre_pedido
+      sessionStorage.setItem('pago_anterior', 'transferencia.html');
+ 
+      document.getElementById('btn-anterior').addEventListener('click', () => {
+        window.location.href = 'pago.html';
+      });
+ 
+      document.getElementById('btn-siguiente').addEventListener('click', () => {
+        window.location.href = 'nombre_pedido.html';
+      });
+ 
+    });
+  </script>
+ 
+</body>
+</html>

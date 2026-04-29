@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Método de Pago — Pastelería Artesanal</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="estilo.css" />
+</head>
+<body>
+
+  <a href="#main-content" class="skip-link">Saltar al contenido</a>
+
+  <header class="nav-superior">
+    <div class="contenedor">
+      <a href="index.html" class="nav-logo">🍰 Pastelería Artesanal</a>
+      <nav class="nav-links">
+        <a href="index.html">Inicio</a>
+        <a href="catalogo.html">Catálogo</a>
+        <a href="contacto.html">Contacto</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="pago-seccion seccion">
+      <div class="contenedor-angosto">
+        <span class="etiqueta-seccion">Paso 2 de 3</span>
+        <h1 class="centrado">¿Cómo vas a pagar? 💳</h1>
+        <p class="subtitulo centrado">Elige el método que más te convenga.</p>
+
+        <div class="pago-opciones">
+          <button type="button" id="btn-efectivo" class="btn-pago efectivo">
+            <span class="btn-pago-icono">💵</span>
+            <span class="btn-pago-texto">Pago Efectivo</span>
+            <span style="font-size:0.8rem;">Paga al recoger</span>
+          </button>
+          <button type="button" id="btn-transferencia" class="btn-pago transferencia">
+            <span class="btn-pago-icono">🏦</span>
+            <span class="btn-pago-texto">Pago Transferencia</span>
+            <span style="font-size:0.8rem;">Transfiere y muestra el comprobante</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>🍰 Pastelería Artesanal · Postres frescos cada semana</p>
+  </footer>
+
+  <script src="carrito.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!getCarrito() || getCarrito().length === 0) window.location.href = 'catalogo.html';
+      document.getElementById('btn-efectivo').addEventListener('click', () => {
+        sessionStorage.setItem('metodo_pago', 'efectivo');
+        sessionStorage.setItem('pago_anterior', 'pago.html');
+        window.location.href = 'nombre_pedido.html';
+      });
+      document.getElementById('btn-transferencia').addEventListener('click', () => {
+        sessionStorage.setItem('metodo_pago', 'transferencia');
+        window.location.href = 'transferencia.html';
+      });
+    });
+  </script>
+</body>
+</html>
