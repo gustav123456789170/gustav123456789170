@@ -6,14 +6,55 @@
   <title>Catálogo — Pastelería Artesanal</title>
   <link rel="preload" as="image" href="Berlinesas_Caramelo.png">
   <link rel="preload" as="image" href="Berlinesas_Leche.png">
-  <meta name="description" content="Menú semanal de Pastelería Artesanal. Elige tus postres frescos de esta semana: berlinesas, tartas y más." />
-  <meta property="og:type"        content="website" />
-  <meta property="og:site_name"   content="Pastelería Artesanal" />
-  <meta property="og:title"       content="Catálogo semanal — Pastelería Artesanal" />
-  <meta property="og:description" content="Mira qué postres frescos tenemos esta semana. ¡El menú cambia constantemente!" />
-  <meta property="og:image"       content="Berlinesas_Caramelo.png" />
+  <meta name="description" content="Menú semanal de Pastelería Artesanal." />
+  <meta property="og:image" content="Berlinesas_Caramelo.png" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="estilo.css" />
+  <style>
+    /* Badge "Agotado" que aparece sobre la imagen de la tarjeta */
+    .badge-agotado {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.52);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radio-card) var(--radio-card) 0 0;
+      pointer-events: none; /* no bloquea el clic en la tarjeta */
+      z-index: 2;
+    }
+    .badge-agotado span {
+      background: #c0392b;
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.95rem;
+      padding: 6px 18px;
+      border-radius: 99px;
+      letter-spacing: 0.04em;
+    }
+    /* Tarjeta agotada: no hover, cursor normal */
+    .tarjeta-agotada {
+      opacity: 0.72;
+      pointer-events: none; /* no se puede hacer clic */
+    }
+    /* Contador de stock debajo del precio */
+    .tarjeta-stock {
+      font-size: 0.78rem;
+      color: var(--texto-muy-suave);
+      font-weight: 600;
+      margin-top: 2px;
+    }
+    .tarjeta-stock.poco {
+      color: #c0392b; /* rojo cuando quedan pocas unidades (≤ 3) */
+      font-weight: 700;
+    }
+    /* Wrapper de la imagen para posicionar el badge encima */
+    .tarjeta-img-wrap {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radio-card) var(--radio-card) 0 0;
+    }
+  </style>
 </head>
 <body>
 
@@ -37,17 +78,22 @@
         <span class="etiqueta-seccion">Menú semanal</span>
         <h1>Esta semana tenemos:</h1>
         <p class="subtitulo">
-          Cada semana renovamos nuestro menú. Elige entre los productos
-          que tenemos en stock hoy. ¡Toca cualquier tarjeta para ver el detalle!
+          Cada semana renovamos nuestro menú. ¡Toca cualquier tarjeta para ver el detalle!
         </p>
 
-        <div class="catalogo-grid" id="catalogo-grid" role="list">
-          <!-- Tarjetas generadas por JS -->
+        <!-- Indicador de carga mientras se consulta el stock desde Google Sheets -->
+        <p id="estado-stock" style="text-align:center; color:var(--texto-muy-suave); font-size:0.88rem; margin-top:24px;">
+          Consultando disponibilidad…
+        </p>
+
+        <!-- Grid de tarjetas — llenado por JS -->
+        <div class="catalogo-grid" id="catalogo-grid" role="list" aria-label="Productos disponibles">
         </div>
 
+        <!-- Sin productos esta semana -->
         <div id="sin-productos" class="alerta alerta-info" style="display:none; margin-top:32px;">
           Esta semana aún no hemos cargado el menú. Vuelve pronto o
-          <a href="contacto.html">contáctanos</a> para más información.
+          <a href="contacto.html">contáctanos</a>.
         </div>
 
       </div>
@@ -61,39 +107,95 @@
   <script src="productosData.js"></script>
   <script src="carrito.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    // ── URL del Apps Script para consultar el stock actual ──────────────
+    // Reemplaza con tu URL real después de publicar el Apps Script.
+    // Deja el string vacío ('') para usar el stock de productosData.js sin consultar Google Sheets.
+    const URL_STOCK = 'https://script.google.com/macros/s/AKfycbxI0i3Zbzb4CuMHF9HrxEdnJwOr4c3w2g0HdWBwH4e0XA_TnCyDh-RlrYP7YEi5sYdo/exec';
 
+    document.addEventListener('DOMContentLoaded', async () => {
       initPanelCarrito();
 
-      const productos = obtenerProductosDisponibles();
-      const grid      = document.getElementById('catalogo-grid');
-      const sinProd   = document.getElementById('sin-productos');
+      const productos  = obtenerProductosDisponibles();
+      const grid       = document.getElementById('catalogo-grid');
+      const sinProd    = document.getElementById('sin-productos');
+      const estadoEl   = document.getElementById('estado-stock');
 
+      // Si no hay productos en el array → mostrar aviso
       if (!productos || productos.length === 0) {
-        sinProd.style.display = 'block';
+        estadoEl.style.display = 'none';
+        sinProd.style.display  = 'block';
         return;
       }
 
+      // ── Intentar obtener el stock actualizado desde Google Sheets ──────
+      // Si falla (sin internet, URL no configurada), usa el stock de productosData.js
+      let stockActual = {};   // { "1": 15, "2": 8 } → id del producto: unidades restantes
+
+      if (URL_STOCK) {
+        try {
+          const resp = await fetch(`${URL_STOCK}?accion=getStock`, { mode: 'cors' });
+          if (resp.ok) {
+            const datos = await resp.json();
+            // datos es un objeto { id: cantidad, ... }
+            stockActual = datos || {};
+          }
+        } catch (e) {
+          // Sin conexión o Apps Script no configurado → usar stock local
+          console.warn('No se pudo obtener el stock de Google Sheets. Usando stock local.', e.message);
+        }
+      }
+
+      // Ocultar indicador de carga
+      estadoEl.style.display = 'none';
+
+      // ── Renderizar tarjetas ────────────────────────────────────────────
       productos.forEach(p => {
-        const card = document.createElement('a');
-        card.href      = `producto.html?id=${encodeURIComponent(p.id)}`;
-        card.className = 'tarjeta-producto';
+        // Stock real: primero Google Sheets, luego el de productosData.js
+        const stockDisponible = (stockActual[String(p.id)] !== undefined)
+          ? Number(stockActual[String(p.id)])
+          : Number(p.stock ?? 0);
+
+        const agotado = stockDisponible <= 0;
+
+        const card = document.createElement(agotado ? 'div' : 'a');
+        if (!agotado) card.href = `producto.html?id=${encodeURIComponent(p.id)}`;
+        card.className = 'tarjeta-producto' + (agotado ? ' tarjeta-agotada' : '');
         card.setAttribute('role', 'listitem');
-        card.setAttribute('aria-label', `Ver ${escHTML(p.nombre)} — $${Number(p.precio).toFixed(2)}`);
+        card.setAttribute('aria-label',
+          agotado
+            ? `${escHTML(p.nombre)} — Agotado`
+            : `Ver ${escHTML(p.nombre)} — $${Number(p.precio).toFixed(2)}`
+        );
+        if (agotado) card.setAttribute('aria-disabled', 'true');
+
+        // Texto del contador de stock
+        let stockTexto = '';
+        if (!agotado) {
+          if (stockDisponible <= 3) {
+            stockTexto = `<div class="tarjeta-stock poco">⚠️ ¡Solo quedan ${stockDisponible}!</div>`;
+          } else {
+            stockTexto = `<div class="tarjeta-stock">Disponibles: ${stockDisponible}</div>`;
+          }
+        }
 
         card.innerHTML = `
-          <img
-            src="${escHTML(p.imagen)}"
-            alt="${escHTML(p.nombre)}"
-            class="tarjeta-imagen"
-            loading="eager"
-            decoding="async"
-            onerror="this.src='data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22300%22%20height%3D%22300%22%20viewBox%3D%220%200%20300%20300%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23f3f0e9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20text-anchor%3D%22middle%22%20dy%3D%22.3em%22%20fill%3D%22%23997f5c%22%3E%3C%2Ftext%3E%3C%2Fsvg%3E'"
-          />
+          <!-- Wrapper con posición relative para el badge de agotado -->
+          <div class="tarjeta-img-wrap">
+            <img
+              src="${escHTML(p.imagen)}"
+              alt="${escHTML(p.nombre)}"
+              class="tarjeta-imagen"
+              loading="eager"
+              decoding="async"
+              onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22200%22%3E%3Crect width=%22100%25%22 height=%22100%25%22 fill=%22%23f3f0e9%22/%3E%3C/svg%3E'"
+            />
+            ${agotado ? '<div class="badge-agotado"><span>Agotado</span></div>' : ''}
+          </div>
           <div class="tarjeta-cuerpo">
             <div class="tarjeta-nombre">${escHTML(p.nombre)}</div>
             <div class="tarjeta-precio">$${Number(p.precio).toFixed(2)}</div>
-            <div class="tarjeta-ver" aria-hidden="true">Toca para ver detalle →</div>
+            ${stockTexto}
+            ${!agotado ? '<div class="tarjeta-ver" aria-hidden="true">Toca para ver detalle →</div>' : ''}
           </div>
         `;
 
