@@ -26,7 +26,7 @@ const productosSemana = [
     precio: 1.00,
     imagen: 'Berlinesas_Caramelo.png',
     descripcion: 'Berlinesa esponjosa rellena de crema de caramelo artesanal, cubierta con azúcar glass. Horneada fresca cada mañana.',
-    stock: 20   // ← EDITAR: cuántas hay disponibles esta semana
+    stock: 80   // ← EDITAR: cuántas hay disponibles esta semana
   },
   {
     id: '2',
@@ -34,7 +34,7 @@ const productosSemana = [
     precio: 1.00,
     imagen: 'Berlinesas_Leche.png',
     descripcion: 'Berlinesa esponjosa rellena de crema de leche artesanal, cubierta con azúcar glass. Horneada fresca cada mañana.',
-    stock: 20   // ← EDITAR: cuántas hay disponibles esta semana
+    stock: 24   // ← EDITAR: cuántas hay disponibles esta semana
   },
   {
     id: '3',
