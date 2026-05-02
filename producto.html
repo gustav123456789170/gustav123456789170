@@ -10,7 +10,7 @@
   <style>
     /* ── Grupos de opciones con botones estilo toggle ── */
 
-    /* Etiqueta de cada grupo (ej: "¿Con azúcar glass encima?") */
+    /* Etiqueta de cada grupo */
     .opcion-titulo {
       font-size: 0.88rem;
       font-weight: 700;
@@ -29,7 +29,7 @@
 
     /* Cada botón de opción — sin seleccionar */
     .opcion-btn {
-      flex: 1;                        /* los dos botones ocupan el mismo ancho */
+      flex: 1;
       padding: 12px 16px;
       border: 2px solid var(--borde-input);
       border-radius: var(--radio-btn);
@@ -40,18 +40,13 @@
       font-weight: 600;
       cursor: pointer;
       text-align: center;
-      transition:
-        border-color var(--transicion),
-        background   var(--transicion),
-        color        var(--transicion),
-        box-shadow   var(--transicion);
-      min-height: 48px;               /* área táctil cómoda en celular */
+      transition: all var(--transicion);
+      min-height: 48px;
       touch-action: manipulation;
       user-select: none;
-      -webkit-tap-highlight-color: transparent;
     }
 
-    /* Botón SELECCIONADO — terracota del sitio */
+    /* Botón SELECCIONADO */
     .opcion-btn.seleccionado {
       border-color: var(--primario);
       background:   var(--primario);
@@ -59,7 +54,6 @@
       box-shadow:   var(--sombra-btn);
     }
 
-    /* Hover solo en dispositivos con puntero (no celular) */
     @media (hover: hover) {
       .opcion-btn:not(.seleccionado):hover {
         border-color: var(--primario);
@@ -68,12 +62,11 @@
       }
     }
 
-    /* Active (toque en celular) */
     .opcion-btn:active {
       transform: scale(0.97);
     }
 
-    /* Aviso de validación si el usuario aprieta "Añadir" sin elegir */
+    /* Aviso de validación */
     .opcion-aviso {
       font-size: 0.8rem;
       color: #c0392b;
@@ -104,12 +97,10 @@
     <section class="producto-seccion seccion">
       <div class="contenedor">
 
-        <!-- Estado de carga -->
         <div id="estado-carga" style="text-align:center; padding:40px;">
           Cargando producto…
         </div>
 
-        <!-- Error: producto no encontrado -->
         <div id="producto-error" style="display:none; text-align:center; padding:40px;">
           <div style="font-size:3rem;">😕</div>
           <h2>Producto no encontrado</h2>
@@ -119,43 +110,27 @@
           </a>
         </div>
 
-        <!-- Contenido del producto -->
         <div id="producto-contenido" style="display:none;">
           <div class="dos-columnas">
 
-            <!-- Columna izquierda: imagen e info -->
             <div>
-              <img
-                id="prod-imagen" src="" alt=""
-                class="producto-imagen"
-                style="width:100%; border-radius:24px;"
-              />
-              <h1 id="prod-nombre"      class="producto-nombre"></h1>
-              <p  id="prod-precio"      class="producto-precio-grande"></p>
-              <!-- Stock en tiempo real -->
-              <p  id="prod-stock"       style="font-size:0.9rem; color:var(--texto-suave); margin-bottom:8px;"></p>
-              <p  id="prod-descripcion" class="producto-descripcion-ficha" style="display:none;"></p>
+              <img id="prod-imagen" src="" alt="" class="producto-imagen" style="width:100%; border-radius:24px;" />
+              <h1 id="prod-nombre" class="producto-nombre"></h1>
+              <p id="prod-precio" class="producto-precio-grande"></p>
+              <p id="prod-stock" style="font-size:0.9rem; color:var(--texto-suave); margin-bottom:8px;"></p>
+              <p id="prod-descripcion" class="producto-descripcion-ficha" style="display:none;"></p>
             </div>
 
-            <!-- Columna derecha: opciones + formulario -->
             <div>
               <div class="producto-form">
                 <h2>Personaliza tu pedido</h2>
 
-                <!-- ══════════════════════════════════════════════
-                     OPCIONES DE PERSONALIZACIÓN (berlinesas)
-                     Solo se muestran para los productos id 1 y 2.
-                     Para otros productos (si se agregan en el futuro)
-                     no aparecen y se muestra el campo de texto normal.
-                ══════════════════════════════════════════════ -->
-
-                <!-- GRUPO 1: Azúcar glass -->
+                <!-- Solo grupo de Azúcar glass (sin temperatura ni notas) -->
                 <div id="grupo-azucar" style="display:none;">
                   <span class="opcion-titulo">
                     ¿Con azúcar glass encima? <span class="requerido">*</span>
                   </span>
                   <div class="opcion-grupo" role="group" aria-label="Azúcar glass encima">
-                    <!-- data-grupo identifica el grupo, data-valor es el valor que se guarda -->
                     <button type="button" class="opcion-btn" data-grupo="azucar" data-valor="Con azúcar glass">
                       Sí
                     </button>
@@ -163,7 +138,6 @@
                       No
                     </button>
                   </div>
-                  <!-- Aviso si el usuario no elige ninguna opción -->
                   <p class="opcion-aviso" id="aviso-azucar">
                     Por favor elige una opción de azúcar glass.
                   </p>
@@ -174,30 +148,19 @@
                   <label class="form-label" for="input-cantidad">
                     Cantidad <span class="requerido">*</span>
                   </label>
-                  <input
-                    type="number"
-                    id="input-cantidad"
-                    class="form-numero"
-                    value="1" min="1" step="1"
-                  />
-                  <!-- Aviso si supera el stock disponible -->
+                  <input type="number" id="input-cantidad" class="form-numero" value="1" min="1" step="1" />
                   <p id="aviso-max" style="font-size:0.8rem; color:#c0392b; display:none; margin-top:4px;"></p>
                 </div>
 
                 <p id="subtotal-preview" class="subtotal-preview">Subtotal estimado: —</p>
 
-                <button
-                  type="button"
-                  id="btn-listo"
-                  class="btn btn-primario btn-bloque btn-listo"
-                >
+                <button type="button" id="btn-listo" class="btn btn-primario btn-bloque btn-listo">
                   Añadir al pedido
                 </button>
 
                 <p class="producto-form-nota">
                   Después de añadir, volverás al catálogo para seguir eligiendo.
                 </p>
-
               </div>
             </div>
 
@@ -216,34 +179,19 @@
   <script src="carrito.js"></script>
   <script>
 
-    /*
-     * URL del Apps Script para consultar el stock en tiempo real.
-     * Debe ser la misma que pusiste en catalogo.html.
-     */
     const URL_STOCK = 'https://script.google.com/macros/s/AKfycbxI0i3Zbzb4CuMHF9HrxEdnJwOr4c3w2g0HdWBwH4e0XA_TnCyDh-RlrYP7YEi5sYdo/exec';
+    const IDS_CON_OPCIONES = ['1', '2'];  // productos que tienen opción de azúcar glass
 
-    /*
-     * IDs de productos que tienen opciones de personalización
-     * (los botones de azúcar glass y temperatura).
-     * Si en el futuro agregas más berlinesas, ponés su id aquí.
-     */
-    const IDS_CON_OPCIONES = ['1', '2'];
-
-    /* Objeto que guarda la selección actual de cada grupo de opciones.
-       null = el usuario aún no eligió nada en ese grupo. */
-    const selecciones = {
-      azucar: null,   // 'Con azúcar glass' | 'Sin azúcar glass'
-      temp:   null,   // 'Caliente' | 'Frío'
-    };
+    // Solo guardaremos la selección de azúcar
+    let seleccionAzucar = null;  // 'Con azúcar glass' | 'Sin azúcar glass'
 
     document.addEventListener('DOMContentLoaded', async () => {
 
-      /* ── Leer id del producto desde la URL ── */
-      const params  = new URLSearchParams(window.location.search);
-      const id      = params.get('id');
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
 
-      const elCarga     = document.getElementById('estado-carga');
-      const elError     = document.getElementById('producto-error');
+      const elCarga = document.getElementById('estado-carga');
+      const elError = document.getElementById('producto-error');
       const elContenido = document.getElementById('producto-contenido');
 
       if (!id) { window.location.href = 'catalogo.html'; return; }
@@ -256,9 +204,8 @@
         return;
       }
 
-      /* ── Consultar stock real desde Google Sheets ── */
+      // Consultar stock
       let stockDisponible = Number(producto.stock ?? 0);
-
       if (URL_STOCK) {
         try {
           const resp = await fetch(`${URL_STOCK}?accion=getStock`, { mode: 'cors' });
@@ -273,179 +220,125 @@
         }
       }
 
-      /* ── Mostrar el contenido ── */
-      elCarga.style.display     = 'none';
+      elCarga.style.display = 'none';
       elContenido.style.display = 'block';
-      document.title = `${producto.nombre} — Pastelería Artesanal`;
+      document.title = `${producto.nombre} — Antojitos`;
 
       document.getElementById('prod-imagen').src = producto.imagen;
       document.getElementById('prod-imagen').alt = producto.nombre;
       document.getElementById('prod-nombre').textContent = producto.nombre;
       document.getElementById('prod-precio').textContent = `$${Number(producto.precio).toFixed(2)}`;
 
-      /* ── Mostrar stock disponible ── */
-      const stockEl  = document.getElementById('prod-stock');
+      const stockEl = document.getElementById('prod-stock');
       const btnListo = document.getElementById('btn-listo');
       const avisoMax = document.getElementById('aviso-max');
 
       if (stockDisponible <= 0) {
-        stockEl.textContent      = '❌ Agotado por el momento.';
-        stockEl.style.color      = '#c0392b';
+        stockEl.textContent = '❌ Agotado por el momento.';
+        stockEl.style.color = '#c0392b';
         stockEl.style.fontWeight = '700';
-        btnListo.disabled        = true;
-        btnListo.textContent     = 'Agotado';
-        btnListo.style.opacity   = '0.55';
-        btnListo.style.cursor    = 'not-allowed';
+        btnListo.disabled = true;
+        btnListo.textContent = 'Agotado';
+        btnListo.style.opacity = '0.55';
       } else if (stockDisponible <= 3) {
-        stockEl.textContent      = `⚠️ ¡Solo quedan ${stockDisponible} unidades!`;
-        stockEl.style.color      = '#c0392b';
+        stockEl.textContent = `⚠️ ¡Solo quedan ${stockDisponible} unidades!`;
+        stockEl.style.color = '#c0392b';
         stockEl.style.fontWeight = '700';
       } else {
         stockEl.textContent = `✅ Disponibles: ${stockDisponible} unidades`;
       }
 
-      /* ── Descripción del producto ── */
       if (producto.descripcion && producto.descripcion.trim()) {
         const descEl = document.getElementById('prod-descripcion');
-        descEl.textContent   = producto.descripcion;
+        descEl.textContent = producto.descripcion;
         descEl.style.display = 'block';
       }
 
-      /* ── Mostrar grupos de opciones solo para berlinesas ──
-         Si el id del producto está en IDS_CON_OPCIONES,
-         se muestran los botones de azúcar glass y temperatura. */
+      // Mostrar grupo de azúcar solo para berlinesas
       const esBerlinesa = IDS_CON_OPCIONES.includes(String(producto.id));
       if (esBerlinesa) {
         document.getElementById('grupo-azucar').style.display = 'block';
-        document.getElementById('grupo-temp').style.display   = 'block';
       }
 
-      /* ── Lógica de los botones de opción (toggle tipo radio) ──
-         Al hacer clic en un botón:
-           1. Quita la clase "seleccionado" de todos los del mismo grupo.
-           2. Añade "seleccionado" al botón presionado.
-           3. Guarda el valor elegido en el objeto "selecciones".
-           4. Oculta el aviso de validación de ese grupo. */
+      // Lógica de botones de azúcar
       document.querySelectorAll('.opcion-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-          const grupo = btn.dataset.grupo;   // 'azucar' o 'temp'
-          const valor = btn.dataset.valor;   // el texto que se guarda
-
-          /* Desmarcar todos los botones del mismo grupo */
+          const grupo = btn.dataset.grupo; // 'azucar'
+          const valor = btn.dataset.valor;
+          // Desmarcar todos del mismo grupo
           document.querySelectorAll(`.opcion-btn[data-grupo="${grupo}"]`).forEach(b => {
             b.classList.remove('seleccionado');
-            b.setAttribute('aria-pressed', 'false');
           });
-
-          /* Marcar el botón presionado */
           btn.classList.add('seleccionado');
-          btn.setAttribute('aria-pressed', 'true');
-
-          /* Guardar la selección */
-          selecciones[grupo] = valor;
-
-          /* Ocultar aviso de validación de este grupo */
-          const aviso = document.getElementById(`aviso-${grupo}`);
+          if (grupo === 'azucar') seleccionAzucar = valor;
+          // Ocultar aviso
+          const aviso = document.getElementById('aviso-azucar');
           if (aviso) aviso.classList.remove('visible');
         });
       });
 
-      /* ── Subtotal en tiempo real ── */
-      const inputCantidad   = document.getElementById('input-cantidad');
+      const inputCantidad = document.getElementById('input-cantidad');
       const subtotalPreview = document.getElementById('subtotal-preview');
 
       if (stockDisponible > 0) inputCantidad.max = stockDisponible;
 
       function actualizarSubtotal() {
-        const qty = parseInt(inputCantidad.value, 10);
-        if (!qty || qty < 1) {
-          subtotalPreview.textContent = 'Subtotal estimado: —';
-          return;
-        }
-        /* Si la cantidad supera el stock, corregirla automáticamente */
+        let qty = parseInt(inputCantidad.value, 10);
+        if (isNaN(qty) || qty < 1) qty = 1;
         if (stockDisponible > 0 && qty > stockDisponible) {
-          inputCantidad.value        = stockDisponible;
-          avisoMax.textContent       = `Máximo disponible: ${stockDisponible} unidades.`;
-          avisoMax.style.display     = 'block';
+          inputCantidad.value = stockDisponible;
+          qty = stockDisponible;
+          avisoMax.textContent = `Máximo disponible: ${stockDisponible} unidades.`;
+          avisoMax.style.display = 'block';
         } else {
           avisoMax.style.display = 'none';
         }
-        const qtyFinal = parseInt(inputCantidad.value, 10);
-        subtotalPreview.textContent = `Subtotal estimado: $${(qtyFinal * Number(producto.precio)).toFixed(2)}`;
-        subtotalPreview.style.color = 'var(--primario)';
+        const sub = qty * Number(producto.precio);
+        subtotalPreview.textContent = `Subtotal estimado: $${sub.toFixed(2)}`;
       }
 
       inputCantidad.addEventListener('input', actualizarSubtotal);
       actualizarSubtotal();
 
-      /* ── Botón "Añadir al pedido" ──
-         Valida:
-           1. Cantidad válida y dentro del stock.
-           2. Si es berlinesa, que se hayan elegido las dos opciones.
-         Luego construye el string de descripción automáticamente
-         a partir de las selecciones y lo guarda en el carrito. */
+      // Botón Añadir
       btnListo.addEventListener('click', () => {
         const cantidad = parseInt(inputCantidad.value, 10);
-
-        /* Validar cantidad */
         if (isNaN(cantidad) || cantidad <= 0) {
           alert('Ingresa una cantidad válida (mínimo 1).');
-          inputCantidad.focus();
           return;
         }
-
         if (stockDisponible > 0 && cantidad > stockDisponible) {
           alert(`Solo hay ${stockDisponible} unidades disponibles.`);
           inputCantidad.value = stockDisponible;
-          inputCantidad.focus();
           return;
         }
 
-        /* Validar opciones de berlinesa (si aplica) */
         let hayError = false;
+        if (esBerlinesa && !seleccionAzucar) {
+          document.getElementById('aviso-azucar').classList.add('visible');
+          hayError = true;
+        }
+        if (hayError) return;
 
-        if (esBerlinesa) {
-          if (!selecciones.azucar) {
-            document.getElementById('aviso-azucar').classList.add('visible');
-            hayError = true;
-          }
-          if (!selecciones.temp) {
-            document.getElementById('aviso-temp').classList.add('visible');
-            hayError = true;
-          }
+        // Construir descripción: solo la opción de azúcar.
+        let descripcionFinal = '';
+        if (esBerlinesa && seleccionAzucar) {
+          descripcionFinal = seleccionAzucar;
         }
 
-        if (hayError) return;   /* no continuar si falta alguna opción */
-
-        /* Construir la descripción a partir de las selecciones elegidas.
-           Formato: "Con azúcar glass · Caliente · [nota adicional]"
-           Si hay notas adicionales, se agregan al final separadas por " · " */
-        const notas = document.getElementById('input-notas').value.trim();
-        const partes = [];
-
-        if (esBerlinesa) {
-          partes.push(selecciones.azucar);   // ej: 'Con azúcar glass'
-          partes.push(selecciones.temp);     // ej: 'Caliente'
-        }
-
-        if (notas) partes.push(notas);
-
-        const descripcionFinal = partes.join(' · ');   // une todas las partes
-
-        /* Agregar al carrito */
         addToCarrito({
-          id:          producto.id,
-          nombre:      producto.nombre,
-          precio:      Number(producto.precio),
-          cantidad:    cantidad,
+          id: producto.id,
+          nombre: producto.nombre,
+          precio: Number(producto.precio),
+          cantidad: cantidad,
           descripcion: descripcionFinal
         });
 
-        /* Feedback visual y redirigir al catálogo */
         btnListo.textContent = '✔ ¡Añadido! Volviendo al catálogo…';
-        btnListo.disabled    = true;
-
-        setTimeout(() => { window.location.href = 'catalogo.html'; }, 900);
+        btnListo.disabled = true;
+        setTimeout(() => {
+          window.location.href = 'catalogo.html';
+        }, 900);
       });
 
     });
