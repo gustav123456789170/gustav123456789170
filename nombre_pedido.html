@@ -63,31 +63,41 @@
 
   <script src="carrito.js"></script>
   <script>
-    const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbyDfbXUnQNzi1Fl041kh36jCeHzjlMCi2dMW-bPshluzeLoFadMIEAYwRvuPJHreIx0lg/exec';
-
     async function enviarPedidoAGoogleSheets(nombreCliente, carrito, total) {
-      const payload = {
-        nombreCliente: nombreCliente,
-        productos: carrito.map(item => ({
-          nombre: item.nombre,
-          cantidad: item.cantidad,
-          precio: item.precio,
-          descripcion: item.descripcion || '',
-          subtotal: (item.precio * item.cantidad).toFixed(2)
-        })),
-        total: total.toFixed(2),
-        fecha: new Date().toLocaleString('es-HN', { timeZone: 'America/Tegucigalpa' }),
-        metodo: sessionStorage.getItem('metodo_pago') || 'efectivo'
-      };
-
-      try {
-        await fetch(URL_APPS_SCRIPT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), mode: 'no-cors' });
-        console.log('✅ Pedido enviado a Google Sheets');
-      } catch (err) {
-        console.warn('⚠️ No se pudo enviar a Google Sheets:', err.message);
-      }
+    const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxUDnPyVYUdmHBvc1IF5uAp5bYmr5ZRmToDQ4rGGdGSZkTyo_1SNun1iEnJpjZqMldWKw/exec';
+    
+    const payload = {
+      nombreCliente: nombreCliente,
+      productos: carrito.map(item => ({
+        id: String(item.id),          // ← IMPORTANTE: el id como string
+        nombre: item.nombre,
+        cantidad: Number(item.cantidad),
+        precio: Number(item.precio),
+        descripcion: item.descripcion || '',
+        subtotal: (item.precio * item.cantidad).toFixed(2)
+      })),
+      total: Number(total).toFixed(2),
+      fecha: new Date().toLocaleString('es-HN', { timeZone: 'America/Tegucigalpa' }),
+      metodo: sessionStorage.getItem('metodo_pago') || 'efectivo'
+    };
+  
+    console.log('📦 Enviando pedido:', payload); // Para depurar
+  
+    try {
+      const response = await fetch(URL_APPS_SCRIPT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        mode: 'no-cors'
+      });
+      console.log('✅ Pedido enviado a Google Sheets (no-cors)');
+      return true;
+    } catch (err) {
+      console.warn('⚠️ No se pudo enviar a Google Sheets:', err.message);
+      return false;
     }
-
+  }
+    
     document.addEventListener('DOMContentLoaded', () => {
       const carrito = getCarrito();
       if (!carrito || carrito.length === 0) {
